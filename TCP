@@ -1,0 +1,36 @@
+import socket
+import threading
+import time
+PORT = 8080
+def run_server():
+    server = socket.socket()
+    server.bind(('0.0.0.0', PORT))
+    server.listen(1)
+    print(f"Server listening on port {PORT}")
+    client, addr = server.accept()
+    print(f"Connection from {addr}")
+    data = client.recv(1024).decode()
+    print(f"Server received: {data}")
+    msg = "Hello from server"
+    client.send(msg.encode())
+    print("Hello message sent from server")
+    client.close()
+    server.close()
+def run_client():
+    time.sleep(1)
+    client = socket.socket()
+    try:
+        client.connect(('127.0.0.1', PORT))
+    except ConnectionRefusedError:
+        print("Connection failed. Is the server running?")
+        return
+    msg = "Hello from client"
+    client.send(msg.encode())
+    print("Client: Hello message sent")
+    data = client.recv(1024).decode()
+    print(f"Client received: {data}")
+    client.close()
+server_thread = threading.Thread(target=run_server)
+server_thread.start()
+run_client()
+server_thread.join()
